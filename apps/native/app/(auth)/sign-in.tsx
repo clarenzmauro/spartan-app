@@ -1,66 +1,147 @@
-import { useSignIn } from "@clerk/clerk-expo";
-import { Link, useRouter } from "expo-router";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import React from "react";
+import * as WebBrowser from "expo-web-browser";
+import { Text, TouchableOpacity, View } from "react-native";
+import { Link } from "expo-router";
+import { useAuth, useUser, useClerk, useOAuth } from "@clerk/clerk-expo";
+import * as Linking from "expo-linking";
+
+export const useWarmUpBrowser = () => {
+	React.useEffect(() => {
+		// Warm up the android browser to improve UX
+		void WebBrowser.warmUpAsync();
+		return () => {
+			void WebBrowser.coolDownAsync();
+		};
+	}, []);
+};
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function Page() {
-	const { signIn, setActive, isLoaded } = useSignIn();
-	const router = useRouter();
+	useWarmUpBrowser();
 
-	const [emailAddress, setEmailAddress] = React.useState("");
-	const [password, setPassword] = React.useState("");
+	const { isSignedIn } = useAuth();
+	const { user, isLoaded: isUserLoaded } = useUser();
+	const { signOut } = useClerk();
+	const { startOAuthFlow } = useOAuth({ strategy: "oauth_google" });
 
-	// Handle the submission of the sign-in form
-	const onSignInPress = async () => {
-		if (!isLoaded) return;
+	// Track domain validation status
+	const [isDomainValid, setIsDomainValid] = React.useState<boolean | null>(null);
+	const [isValidating, setIsValidating] = React.useState(false);
 
-		// Start the sign-in process using the email and password provided
+	// Validate email domain after sign in
+	React.useEffect(() => {
+		if (isSignedIn && isUserLoaded && user?.emailAddresses?.[0]?.emailAddress) {
+			const userEmail = user.emailAddresses[0].emailAddress;
+			const isValid = userEmail.endsWith('@g.batstate-u.edu.ph');
+
+			setIsDomainValid(isValid);
+			setIsValidating(false);
+
+			if (!isValid) {
+				// Invalid domain - sign out immediately and show error
+				signOut();
+				alert('Access restricted to Batangas State University accounts (@g.batstate-u.edu.ph) only.');
+			}
+		} else if (isSignedIn && !isUserLoaded) {
+			// User is signed in but data is still loading
+			setIsValidating(true);
+		} else if (!isSignedIn) {
+			// Reset validation state when signed out
+			setIsDomainValid(null);
+			setIsValidating(false);
+		}
+	}, [isSignedIn, isUserLoaded, user, signOut]);
+
+	const handleSignIn = React.useCallback(async () => {
 		try {
-			const signInAttempt = await signIn.create({
-				identifier: emailAddress,
-				password,
+			const { createdSessionId, setActive } = await startOAuthFlow({
+				redirectUrl: Linking.createURL("/", { scheme: "mybettertapp" }),
 			});
 
-			// If sign-in process is complete, set the created session as active
-			// and redirect the user
-			if (signInAttempt.status === "complete") {
-				await setActive({ session: signInAttempt.createdSessionId });
-				router.replace("/");
-			} else {
-				// If the status isn't complete, check why. User might need to
-				// complete further steps.
-				console.error(JSON.stringify(signInAttempt, null, 2));
+			if (createdSessionId) {
+				setActive!({ session: createdSessionId });
 			}
 		} catch (err) {
-			// See https://clerk.com/docs/custom-flows/error-handling
-			// for more info on error handling
-			console.error(JSON.stringify(err, null, 2));
+			console.error("OAuth error:", JSON.stringify(err, null, 2));
 		}
-	};
+	}, []);
 
+	// Show loading state during validation
+	if (isValidating) {
+		return (
+			<View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 20 }}>
+				<Text style={{ fontSize: 24, marginBottom: 20 }}>Sign in</Text>
+				<Text style={{ fontSize: 16, marginBottom: 20, textAlign: "center" }}>
+					Verifying account...
+				</Text>
+				<View style={{
+					backgroundColor: "#f5f5f5",
+					paddingHorizontal: 20,
+					paddingVertical: 12,
+					borderRadius: 4,
+				}}>
+					<Text style={{ color: "#666", fontSize: 14, textAlign: "center" }}>
+						Checking email domain access
+					</Text>
+				</View>
+			</View>
+		);
+	}
+
+	// Show success state (user is signed in with valid domain)
+	if (isSignedIn && isDomainValid) {
+		return (
+			<View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 20 }}>
+				<Text style={{ fontSize: 24, marginBottom: 20 }}>Welcome!</Text>
+				<Text style={{ fontSize: 16, marginBottom: 20, textAlign: "center" }}>
+					Successfully signed in as {user?.firstName || user?.emailAddresses?.[0]?.emailAddress}
+				</Text>
+				<View style={{
+					backgroundColor: "#d4edda",
+					paddingHorizontal: 20,
+					paddingVertical: 12,
+					borderRadius: 4,
+					borderWidth: 1,
+					borderColor: "#c3e6cb",
+				}}>
+					<Text style={{ color: "#155724", fontSize: 14, textAlign: "center" }}>
+						Redirecting to home...
+					</Text>
+				</View>
+			</View>
+		);
+	}
+
+	// Default sign-in form
 	return (
-		<View>
-			<Text>Sign in</Text>
-			<TextInput
-				autoCapitalize="none"
-				value={emailAddress}
-				placeholder="Enter email"
-				onChangeText={(emailAddress) => setEmailAddress(emailAddress)}
-			/>
-			<TextInput
-				value={password}
-				placeholder="Enter password"
-				secureTextEntry={true}
-				onChangeText={(password) => setPassword(password)}
-			/>
-			<TouchableOpacity onPress={onSignInPress}>
-				<Text>Continue</Text>
+		<View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 20 }}>
+			<Text style={{ fontSize: 24, marginBottom: 20 }}>Sign in</Text>
+			<TouchableOpacity
+				onPress={handleSignIn}
+				style={{
+					backgroundColor: "#4285F4",
+					paddingHorizontal: 20,
+					paddingVertical: 12,
+					borderRadius: 4,
+					flexDirection: "row",
+					alignItems: "center",
+				}}
+			>
+				<Text style={{ color: "white", fontSize: 16, fontWeight: "bold" }}>
+					Sign in with Google
+				</Text>
 			</TouchableOpacity>
-			<View style={{ display: "flex", flexDirection: "row", gap: 3 }}>
-				<Text>Don't have an account?</Text>
-				<Link href="/sign-up">
-					<Text>Sign up</Text>
-				</Link>
+			<View style={{
+				backgroundColor: "#f8f9fa",
+				paddingHorizontal: 15,
+				paddingVertical: 10,
+				borderRadius: 4,
+				marginTop: 20,
+			}}>
+				<Text style={{ color: "#6c757d", fontSize: 12, textAlign: "center" }}>
+					Only @g.batstate-u.edu.ph accounts are allowed
+				</Text>
 			</View>
 		</View>
 	);
