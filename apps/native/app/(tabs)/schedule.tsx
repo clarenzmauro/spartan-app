@@ -1,16 +1,16 @@
 import { Container } from "@/components/container";
 import { ScrollView, Text, View } from "react-native";
 
-export default function TabTwo() {
+export default function ScheduleScreen() {
 	return (
 		<Container>
 			<ScrollView className="flex-1 p-6">
 				<View className="py-8">
 					<Text className="text-3xl font-bold text-foreground mb-2">
-						Tab Two
+						Schedule
 					</Text>
 					<Text className="text-lg text-muted-foreground">
-						Discover more features and content
+						View your upcoming events and appointments
 					</Text>
 				</View>
 			</ScrollView>
