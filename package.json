@@ -15,7 +15,11 @@
     "dev:server": "turbo -F @spartan-app/backend dev",
     "dev:setup": "turbo -F @spartan-app/backend dev:setup"
   },
-  "dependencies": {},
+  "dependencies": {
+    "react-native": "0.81.5",
+    "react-native-worklets": "0.5.1",
+    "typescript": "~5.9.2"
+  },
   "devDependencies": {
     "turbo": "^2.5.4"
   },
