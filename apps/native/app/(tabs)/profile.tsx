@@ -1,4 +1,3 @@
-import { Container } from "@/components/container";
 import { ScrollView, Text, View, Pressable } from "react-native";
 import ProfileContainer from "@/components/profile-container";
 
