@@ -1,5 +1,5 @@
 {
-  "name": "bsu-app",
+  "name": "spartan-app",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -12,8 +12,8 @@
     "check-types": "turbo check-types",
     "dev:native": "turbo -F native dev",
     "dev:web": "turbo -F web dev",
-    "dev:server": "turbo -F @bsu-app/backend dev",
-    "dev:setup": "turbo -F @bsu-app/backend dev:setup"
+    "dev:server": "turbo -F @spartan-app/backend dev",
+    "dev:setup": "turbo -F @spartan-app/backend dev:setup"
   },
   "dependencies": {},
   "devDependencies": {

@@ -38,7 +38,7 @@
     "react-native-web": "^0.21.0",
     "react-native-worklets": "^0.5.1",
     "convex": "^1.27.0",
-    "@bsu-app/backend": "workspace:*",
+    "@spartan-app/backend": "workspace:*",
     "@clerk/clerk-expo": "^2.14.25"
   },
   "devDependencies": {

@@ -7,7 +7,7 @@ import {
 	Unauthenticated,
 	useQuery,
 } from "convex/react";
-import { api } from "@bsu-app/backend/convex/_generated/api";
+import { api } from "@spartan-app/backend/convex/_generated/api";
 import { useUser } from "@clerk/clerk-expo";
 import { SignOutButton } from "@/components/sign-out-button";
 

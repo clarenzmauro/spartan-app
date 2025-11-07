@@ -1,4 +1,4 @@
-# bsu-app
+# spartan-app
 
 This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines Convex, and more.
 
@@ -49,7 +49,7 @@ Your app will connect to the Convex cloud backend automatically.
 ## Project Structure
 
 ```
-bsu-app/
+spartan-app/
 ├── apps/
 │   ├── native/      # Mobile application (React Native, Expo)
 ├── packages/
