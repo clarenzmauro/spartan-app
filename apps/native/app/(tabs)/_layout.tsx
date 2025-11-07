@@ -41,9 +41,9 @@ export default function TabsLayout() {
 				name="qr"
 				options={{
 					title: "",
-					tabBarIcon: ({ focused }) => (
-						<View className={`w-14 h-14 rounded-full border-4 ${focused ? 'border-primary bg-primary' : 'border-primary bg-background'} items-center justify-center`}>
-							<TabBarIcon name="qrcode" color={focused ? (isDarkColorScheme ? NAV_THEME.dark.background : NAV_THEME.light.background) : (isDarkColorScheme ? NAV_THEME.dark.primary : NAV_THEME.light.primary)} />
+					tabBarIcon: () => (
+						<View className={`w-14 h-14 rounded-full border-4 border-[#F38EA1] bg-[#B00020] items-center justify-center`}>
+							<TabBarIcon name="qrcode" color="#FFFFFF" />
 						</View>
 					),
 				}}
