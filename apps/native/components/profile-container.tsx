@@ -27,14 +27,15 @@ export default function ProfileContainer() {
         </View>
 
         {/* Character Image */}
-        <View className="items-center">
+        <View className="items-start">
           <Image
             source={
               gender === "male"
                 ? require("../../native/assets/images/male_1_cropped.png")
                 : require("../../native/assets/images/female_1_cropped.png")
             }
-            className="w-48 h-64"
+            className="w-72 h-96"
+            style={{ transform: [{ scale: 1.2 }] }}
             resizeMode="contain"
           />
         </View>
