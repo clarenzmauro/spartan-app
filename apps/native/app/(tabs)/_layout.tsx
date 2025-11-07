@@ -2,12 +2,13 @@ import { Tabs } from "expo-router";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { NAV_THEME } from "@/lib/constants";
 import { TabBarIcon } from "@/components/tabbar-icon";
-import { View } from "react-native";
+import { View, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabsLayout() {
 	const { isDarkColorScheme } = useColorScheme();
 	const { bottom } = useSafeAreaInsets();
+	const bottomInset = Platform.OS === "android" ? bottom : 0;
 	
 	return (
 		<Tabs
@@ -17,8 +18,8 @@ export default function TabsLayout() {
 					backgroundColor: isDarkColorScheme ? NAV_THEME.dark.background : NAV_THEME.light.background,
 					borderTopColor: isDarkColorScheme ? NAV_THEME.dark.border : NAV_THEME.light.border,
 					borderTopWidth: 1,
-					height: 60 + bottom,
-					paddingBottom: 5 + bottom,
+					height: 60 + bottomInset,
+					paddingBottom: 5 + bottomInset,
 					paddingTop: 5,
 				},
 				tabBarActiveTintColor: isDarkColorScheme ? NAV_THEME.dark.primary : NAV_THEME.light.primary,
