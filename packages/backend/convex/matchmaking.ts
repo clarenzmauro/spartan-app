@@ -80,14 +80,37 @@ export const joinMatchmaking = mutation({
       .first();
 
     if (potentialMatches) {
-      // Create battle
+      // Determine who goes first based on speed
+      const player1GoesFirst = args.spdAmount >= potentialMatches.spdAmount;
+      
+      // Create battle with full player details
       const battleId = await ctx.db.insert("battles", {
-        player1Id: matchmakingId,
-        player2Id: potentialMatches._id,
-        currentTurn: "player1",
-        player1HP: args.hpAmount,
-        player2HP: potentialMatches.hpAmount,
+        player1: {
+          userId: args.userId,
+          hpAmount: args.hpAmount,
+          currentHP: args.hpAmount,
+          atkAmount: args.atkAmount,
+          crtAmount: args.crtAmount,
+          defAmount: args.defAmount,
+          spdAmount: args.spdAmount,
+          intAmount: args.intAmount,
+          powerLevel,
+        },
+        player2: {
+          userId: potentialMatches.userId,
+          hpAmount: potentialMatches.hpAmount,
+          currentHP: potentialMatches.hpAmount,
+          atkAmount: potentialMatches.atkAmount,
+          crtAmount: potentialMatches.crtAmount,
+          defAmount: potentialMatches.defAmount,
+          spdAmount: potentialMatches.spdAmount,
+          intAmount: potentialMatches.intAmount,
+          powerLevel: potentialMatches.powerLevel,
+        },
+        currentTurn: player1GoesFirst ? "player1" : "player2",
+        turnCount: 1,
         status: "active",
+        battleLog: [],
         createdAt: Date.now(),
       });
 

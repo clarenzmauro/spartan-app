@@ -22,13 +22,45 @@ export default defineSchema({
 	}).index("by_status_and_power", ["status", "powerLevel"])
 	  .index("by_user", ["userId"]),
 	battles: defineTable({
-		player1Id: v.id("matchmaking"),
-		player2Id: v.id("matchmaking"),
+		// Player 1 details
+		player1: v.object({
+			userId: v.string(),
+			hpAmount: v.number(),
+			currentHP: v.number(),
+			atkAmount: v.number(),
+			crtAmount: v.number(),
+			defAmount: v.number(),
+			spdAmount: v.number(),
+			intAmount: v.number(),
+			powerLevel: v.number(),
+		}),
+		// Player 2 details
+		player2: v.object({
+			userId: v.string(),
+			hpAmount: v.number(),
+			currentHP: v.number(),
+			atkAmount: v.number(),
+			crtAmount: v.number(),
+			defAmount: v.number(),
+			spdAmount: v.number(),
+			intAmount: v.number(),
+			powerLevel: v.number(),
+		}),
+		// Battle state
 		currentTurn: v.union(v.literal("player1"), v.literal("player2")),
-		player1HP: v.number(),
-		player2HP: v.number(),
+		turnCount: v.number(),
 		status: v.union(v.literal("active"), v.literal("finished")),
 		winner: v.optional(v.union(v.literal("player1"), v.literal("player2"))),
+		battleLog: v.array(v.object({
+			turn: v.number(),
+			player: v.union(v.literal("player1"), v.literal("player2")),
+			action: v.string(),
+			damage: v.optional(v.number()),
+			isCritical: v.optional(v.boolean()),
+			timestamp: v.number(),
+		})),
 		createdAt: v.number(),
-	}),
+		finishedAt: v.optional(v.number()),
+	}).index("by_user", ["player1.userId"])
+	  .index("by_user2", ["player2.userId"]),
 });

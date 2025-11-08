@@ -15,9 +15,12 @@ export default function ProfileContainer() {
   const [isEventActive, setIsEventActive] = useState(true); // Change to false to disable event
   const [matchmakingId, setMatchmakingId] = useState<Id<"matchmaking"> | null>(null);
 
+  // Generate a unique user ID for testing (in production, use actual authenticated user ID)
+  const [testUserId] = useState(() => `user_${Math.random().toString(36).substring(2, 15)}`);
+
   // Player stats - these would come from your user data
   const playerStats = {
-    userId: "user123", // Replace with actual user ID
+    userId: testUserId, // Using generated test user ID
     hpAmount: 100,
     atkAmount: 85,
     crtAmount: 72,
