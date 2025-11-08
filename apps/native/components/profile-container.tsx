@@ -4,10 +4,17 @@ import { useState } from "react";
 export default function ProfileContainer() {
   const [gender, setGender] = useState<"male" | "female">("male");
   const [showSkillModal, setShowSkillModal] = useState(false);
+  const [showLockedSkillModal, setShowLockedSkillModal] = useState(false);
+  const [lockedSkillMessage, setLockedSkillMessage] = useState("");
   const [showDailiesModal, setShowDailiesModal] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
   const [showBattleModal, setShowBattleModal] = useState(false);
   const [isEventActive, setIsEventActive] = useState(true); // Change to false to disable event
+
+  const showLockedSkill = (message: string) => {
+    setLockedSkillMessage(message);
+    setShowLockedSkillModal(true);
+  };
 
   return (
     <View className="flex justify-center items-center flex-1 px-4 bg-red-100">
@@ -51,26 +58,54 @@ export default function ProfileContainer() {
           <View className="pr-2">
             {/* Stats Section */}
             <View className="mb-6">
-              <Text className="text-white font-bold mb-2">Stats:</Text>
+              <Text className="text-white font-bold mb-2 text-right">Stats:</Text>
+              <Text className="text-white font-bold mb-2 text-right">Points: 0</Text>
               <View className="space-y-1">
-                <Text className="text-gray-300 text-sm">HP: 100</Text>
-                <Text className="text-gray-300 text-sm">ATK: 85</Text>
-                <Text className="text-gray-300 text-sm">CRT: 72</Text>
-                <Text className="text-gray-300 text-sm">DEF: 65</Text>
-                <Text className="text-gray-300 text-sm">SPD: 90</Text>
-                <Text className="text-gray-300 text-sm">INT: 78</Text>
+                <Text className="text-gray-300 text-sm text-right">HP: 100</Text>
+                <Text className="text-gray-300 text-sm text-right">ATK: 85</Text>
+                <Text className="text-gray-300 text-sm text-right">CRT: 72</Text>
+                <Text className="text-gray-300 text-sm text-right">DEF: 65</Text>
+                <Text className="text-gray-300 text-sm text-right">SPD: 90</Text>
+                <Text className="text-gray-300 text-sm text-right">INT: 78</Text>
               </View>
             </View>
 
             {/* Special Skill Section */}
             <View>
-              <Text className="text-white font-bold mb-2">Skill:</Text>
-              <TouchableOpacity
-                onPress={() => setShowSkillModal(true)}
-                activeOpacity={0.7}
-              >
-                <View className="w-10 h-10 bg-neutral-700 rounded" />
-              </TouchableOpacity>
+              <Text className="text-white font-bold mb-2 text-right">Skills:</Text>
+              {/* 2x2 Grid of Skills */}
+              <View className="gap-2">
+                {/* First Row */}
+                <View className="flex-row gap-2">
+                  <TouchableOpacity
+                    onPress={() => setShowSkillModal(true)}
+                    activeOpacity={0.7}
+                  >
+                    <View className="w-10 h-10 bg-neutral-700 rounded" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => showLockedSkill("Reach 2nd Year to unlock")}
+                    activeOpacity={0.7}
+                  >
+                    <View className="w-10 h-10 bg-neutral-900 rounded opacity-50" />
+                  </TouchableOpacity>
+                </View>
+                {/* Second Row */}
+                <View className="flex-row gap-2">
+                  <TouchableOpacity
+                    onPress={() => showLockedSkill("Reach 3rd Year to unlock")}
+                    activeOpacity={0.7}
+                  >
+                    <View className="w-10 h-10 bg-neutral-900 rounded opacity-50" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => showLockedSkill("Reach 4th Year to unlock")}
+                    activeOpacity={0.7}
+                  >
+                    <View className="w-10 h-10 bg-neutral-900 rounded opacity-50" />
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
           </View>
         </View>
@@ -95,6 +130,32 @@ export default function ProfileContainer() {
             </Text>
             <TouchableOpacity
               onPress={() => setShowSkillModal(false)}
+              className="bg-blue-500 rounded-lg py-2"
+            >
+              <Text className="text-white text-center font-semibold">Close</Text>
+            </TouchableOpacity>
+          </View>
+        </Pressable>
+      </Modal>
+
+      {/* Locked Skill Modal */}
+      <Modal
+        transparent={true}
+        visible={showLockedSkillModal}
+        animationType="fade"
+        onRequestClose={() => setShowLockedSkillModal(false)}
+      >
+        <Pressable 
+          className="flex-1 justify-center items-center bg-black/50"
+          onPress={() => setShowLockedSkillModal(false)}
+        >
+          <View className="bg-neutral-800 rounded-xl p-6 mx-8 max-w-sm">
+            <Text className="text-white font-bold text-lg mb-3">🔒 Skill Locked</Text>
+            <Text className="text-gray-300 text-sm mb-4">
+              {lockedSkillMessage}
+            </Text>
+            <TouchableOpacity
+              onPress={() => setShowLockedSkillModal(false)}
               className="bg-blue-500 rounded-lg py-2"
             >
               <Text className="text-white text-center font-semibold">Close</Text>
