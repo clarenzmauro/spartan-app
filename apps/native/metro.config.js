@@ -7,6 +7,11 @@ const config = withNativeWind(getDefaultConfig(__dirname), {
 	configPath: "./tailwind.config.js",
 });
 
+// SVG transformer
+config.transformer.babelTransformerPath = require.resolve("react-native-svg-transformer");
+config.resolver.assetExts = config.resolver.assetExts.filter(ext => ext !== "svg");
+config.resolver.sourceExts.push("svg");
+
 config.resolver.unstable_enablePackageExports = true;
 
 module.exports = config;

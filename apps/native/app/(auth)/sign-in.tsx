@@ -127,7 +127,7 @@ export default function Page() {
           borderRadius: 32,
           borderTopLeftRadius: 0,
           borderTopRightRadius: 0,
-          backgroundColor: "#910C24",
+          backgroundColor: "#b30000",
           justifyContent: "center",
           alignItems: "center",
         }}

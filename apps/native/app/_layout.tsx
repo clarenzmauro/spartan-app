@@ -138,7 +138,7 @@ export default function RootLayout() {
 	// Show splash screen with rectangle animation
 	if (isSplashVisible || !isColorSchemeLoaded) {
 		return (
-			<View style={{ flex: 1, backgroundColor: showLogo ? 'white' : '#910C24', justifyContent: 'center', alignItems: 'center' }}>
+			<View style={{ flex: 1, backgroundColor: showLogo ? 'white' : '#b30000', justifyContent: 'center', alignItems: 'center' }}>
 				{!showLogo && (
 					<Animated.View
 						style={[
