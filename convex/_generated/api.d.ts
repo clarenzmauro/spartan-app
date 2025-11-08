@@ -8,11 +8,6 @@
  * @module
  */
 
-import type * as healthCheck from "../healthCheck.js";
-import type * as matchmaking from "../matchmaking.js";
-import type * as privateData from "../privateData.js";
-import type * as todos from "../todos.js";
-
 import type {
   ApiFromModules,
   FilterApi,
@@ -27,21 +22,12 @@ import type {
  * const myFunctionReference = api.myModule.myFunction;
  * ```
  */
-declare const fullApi: ApiFromModules<{
-  healthCheck: typeof healthCheck;
-  matchmaking: typeof matchmaking;
-  privateData: typeof privateData;
-  todos: typeof todos;
-}>;
-declare const fullApiWithMounts: typeof fullApi;
-
+declare const fullApi: ApiFromModules<{}>;
 export declare const api: FilterApi<
-  typeof fullApiWithMounts,
+  typeof fullApi,
   FunctionReference<any, "public">
 >;
 export declare const internal: FilterApi<
-  typeof fullApiWithMounts,
+  typeof fullApi,
   FunctionReference<any, "internal">
 >;
-
-export declare const components: {};

@@ -1,5 +1,8 @@
 import { Text, View, TouchableOpacity, Image, Modal, Pressable, ScrollView, ActivityIndicator } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../../../packages/backend/convex/_generated/api";
+import type { Id } from "../../../packages/backend/convex/_generated/dataModel";
 
 export default function ProfileContainer() {
   const [gender, setGender] = useState<"male" | "female">("male");
@@ -10,6 +13,68 @@ export default function ProfileContainer() {
   const [showEventModal, setShowEventModal] = useState(false);
   const [showBattleModal, setShowBattleModal] = useState(false);
   const [isEventActive, setIsEventActive] = useState(true); // Change to false to disable event
+  const [matchmakingId, setMatchmakingId] = useState<Id<"matchmaking"> | null>(null);
+
+  // Player stats - these would come from your user data
+  const playerStats = {
+    userId: "user123", // Replace with actual user ID
+    hpAmount: 100,
+    atkAmount: 85,
+    crtAmount: 72,
+    defAmount: 65,
+    spdAmount: 90,
+    intAmount: 78,
+  };
+
+  // Convex mutations and queries
+  const joinMatchmaking = useMutation(api.matchmaking.joinMatchmaking);
+  const cancelMatchmaking = useMutation(api.matchmaking.cancelMatchmaking);
+  const matchmakingStatus = useQuery(
+    api.matchmaking.getMatchmakingStatus,
+    matchmakingId ? { matchmakingId } : "skip"
+  );
+
+  // Handle battle button click
+  const handleBattleClick = async () => {
+    setShowBattleModal(true);
+    
+    try {
+      const result = await joinMatchmaking(playerStats);
+      setMatchmakingId(result.matchmakingId);
+      
+      if (result.status === "matched") {
+        // Battle found immediately
+        console.log("Battle found!", result.battleId);
+        // Navigate to battle screen or handle matched state
+      }
+    } catch (error) {
+      console.error("Error joining matchmaking:", error);
+      setShowBattleModal(false);
+    }
+  };
+
+  // Handle cancel matchmaking
+  const handleCancelMatchmaking = async () => {
+    if (matchmakingId) {
+      try {
+        await cancelMatchmaking({ matchmakingId });
+        setMatchmakingId(null);
+      } catch (error) {
+        console.error("Error cancelling matchmaking:", error);
+      }
+    }
+    setShowBattleModal(false);
+  };
+
+  // Monitor matchmaking status
+  useEffect(() => {
+    if (matchmakingStatus?.status === "matched" && matchmakingStatus.battleId) {
+      console.log("Match found! Battle ID:", matchmakingStatus.battleId);
+      setShowBattleModal(false);
+      // Navigate to battle screen or update UI
+      // You can add navigation here: navigation.navigate("Battle", { battleId: matchmakingStatus.battleId })
+    }
+  }, [matchmakingStatus]);
 
   const showLockedSkill = (message: string) => {
     setLockedSkillMessage(message);
@@ -64,12 +129,12 @@ export default function ProfileContainer() {
                 Points: 0
               </Text>
               <View>
-                <Text className="text-gray-300 text-sm text-right">HP: 100</Text>
-                <Text className="text-gray-300 text-sm text-right">ATK: 85</Text>
-                <Text className="text-gray-300 text-sm text-right">CRT: 72</Text>
-                <Text className="text-gray-300 text-sm text-right">DEF: 65</Text>
-                <Text className="text-gray-300 text-sm text-right">SPD: 90</Text>
-                <Text className="text-gray-300 text-sm text-right">INT: 78</Text>
+                <Text className="text-gray-300 text-sm text-right">HP: {playerStats.hpAmount}</Text>
+                <Text className="text-gray-300 text-sm text-right">ATK: {playerStats.atkAmount}</Text>
+                <Text className="text-gray-300 text-sm text-right">CRT: {playerStats.crtAmount}</Text>
+                <Text className="text-gray-300 text-sm text-right">DEF: {playerStats.defAmount}</Text>
+                <Text className="text-gray-300 text-sm text-right">SPD: {playerStats.spdAmount}</Text>
+                <Text className="text-gray-300 text-sm text-right">INT: {playerStats.intAmount}</Text>
               </View>
             </View>
 
@@ -157,7 +222,7 @@ export default function ProfileContainer() {
         {/* Battle Button */}
         <TouchableOpacity 
           className="bg-neutral-800 rounded-lg py-4 mb-2"
-          onPress={() => setShowBattleModal(true)}
+          onPress={handleBattleClick}
         >
           <Text className="text-white text-center font-bold text-lg">BATTLE</Text>
         </TouchableOpacity>
@@ -283,14 +348,19 @@ export default function ProfileContainer() {
         transparent={true}
         visible={showBattleModal}
         animationType="fade"
-        onRequestClose={() => setShowBattleModal(false)}
+        onRequestClose={handleCancelMatchmaking}
       >
         <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-neutral-800 rounded-xl p-8 mx-8 max-w-sm items-center">
             <ActivityIndicator size="large" color="#3b82f6" />
-            <Text className="text-white font-bold text-xl mt-6 mb-6">Finding Battle...</Text>
+            <Text className="text-white font-bold text-xl mt-6 mb-2">Finding Battle...</Text>
+            {matchmakingStatus && (
+              <Text className="text-gray-400 text-sm mb-6">
+                Power Level: {Math.round(matchmakingStatus.powerLevel || 0)}
+              </Text>
+            )}
             <TouchableOpacity
-              onPress={() => setShowBattleModal(false)}
+              onPress={handleCancelMatchmaking}
               className="bg-red-500 rounded-lg py-3 px-8 w-full"
             >
               <Text className="text-white text-center font-semibold">Cancel</Text>
