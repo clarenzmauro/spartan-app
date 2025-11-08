@@ -1,148 +1,207 @@
 import React from "react";
 import * as WebBrowser from "expo-web-browser";
-import { Text, TouchableOpacity, View } from "react-native";
-import { Link } from "expo-router";
+import { Text, TouchableOpacity, View, Image } from "react-native";
+import { Link, useRouter } from "expo-router";
 import { useAuth, useUser, useClerk, useOAuth } from "@clerk/clerk-expo";
 import * as Linking from "expo-linking";
 
 export const useWarmUpBrowser = () => {
-	React.useEffect(() => {
-		// Warm up the android browser to improve UX
-		void WebBrowser.warmUpAsync();
-		return () => {
-			void WebBrowser.coolDownAsync();
-		};
-	}, []);
+  React.useEffect(() => {
+    // Warm up the android browser to improve UX
+    void WebBrowser.warmUpAsync();
+    return () => {
+      void WebBrowser.coolDownAsync();
+    };
+  }, []);
 };
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function Page() {
-	useWarmUpBrowser();
+  useWarmUpBrowser();
 
-	const { isSignedIn } = useAuth();
-	const { user, isLoaded: isUserLoaded } = useUser();
-	const { signOut } = useClerk();
-	const { startOAuthFlow } = useOAuth({ strategy: "oauth_google" });
+  const router = useRouter();
+  const { isSignedIn } = useAuth();
+  const { user, isLoaded: isUserLoaded } = useUser();
+  const { signOut } = useClerk();
+  const { startOAuthFlow } = useOAuth({ strategy: "oauth_google" });
 
-	// Track domain validation status
-	const [isDomainValid, setIsDomainValid] = React.useState<boolean | null>(null);
-	const [isValidating, setIsValidating] = React.useState(false);
+  // Track domain validation status
+  const [isDomainValid, setIsDomainValid] = React.useState<boolean | null>(
+    null
+  );
+  const [isValidating, setIsValidating] = React.useState(false);
+  const [isOAuthLoading, setIsOAuthLoading] = React.useState(false);
 
-	// Validate email domain after sign in
-	React.useEffect(() => {
-		if (isSignedIn && isUserLoaded && user?.emailAddresses?.[0]?.emailAddress) {
-			const userEmail = user.emailAddresses[0].emailAddress;
-			const isValid = userEmail.endsWith('@g.batstate-u.edu.ph');
+  // Validate email domain after sign in
+  React.useEffect(() => {
+    if (isSignedIn && isUserLoaded && user?.emailAddresses?.[0]?.emailAddress) {
+      const userEmail = user.emailAddresses[0].emailAddress;
+      const isValid = userEmail.endsWith("@g.batstate-u.edu.ph");
 
-			setIsDomainValid(isValid);
-			setIsValidating(false);
+      setIsDomainValid(isValid);
+      setIsValidating(false);
 
-			if (!isValid) {
-				// Invalid domain - sign out immediately and show error
-				signOut();
-				alert('Access restricted to Batangas State University accounts (@g.batstate-u.edu.ph) only.');
-			}
-		} else if (isSignedIn && !isUserLoaded) {
-			// User is signed in but data is still loading
-			setIsValidating(true);
-		} else if (!isSignedIn) {
-			// Reset validation state when signed out
-			setIsDomainValid(null);
-			setIsValidating(false);
-		}
-	}, [isSignedIn, isUserLoaded, user, signOut]);
+      if (isValid) {
+        // Valid domain - navigate to home immediately
+        router.replace("/");
+      } else {
+        // Invalid domain - sign out immediately and show error
+        signOut();
+        alert(
+          "Access restricted to Batangas State University accounts (@g.batstate-u.edu.ph) only."
+        );
+      }
+    } else if (isSignedIn && !isUserLoaded) {
+      // User is signed in but data is still loading
+      setIsValidating(true);
+    } else if (!isSignedIn) {
+      // Reset validation state when signed out
+      setIsDomainValid(null);
+      setIsValidating(false);
+    }
+  }, [isSignedIn, isUserLoaded, user, signOut, router]);
 
-	const handleSignIn = React.useCallback(async () => {
-		try {
-			const { createdSessionId, setActive } = await startOAuthFlow({
-				redirectUrl: Linking.createURL("/", { scheme: "mybettertapp" }),
-			});
+  const handleSignIn = React.useCallback(
+    async (event?: unknown) => {
+      try {
+        setIsOAuthLoading(true);
 
-			if (createdSessionId) {
-				setActive!({ session: createdSessionId });
-			}
-		} catch (err) {
-			console.error("OAuth error:", JSON.stringify(err, null, 2));
-		}
-	}, []);
+        const { createdSessionId, setActive } = await startOAuthFlow({
+          redirectUrl: Linking.createURL("/", { scheme: "mybettertapp" }),
+        });
 
-	// Show loading state during validation
-	if (isValidating) {
-		return (
-			<View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 20 }}>
-				<Text style={{ fontSize: 24, marginBottom: 20 }}>Sign in</Text>
-				<Text style={{ fontSize: 16, marginBottom: 20, textAlign: "center" }}>
-					Verifying account...
-				</Text>
-				<View style={{
-					backgroundColor: "#f5f5f5",
-					paddingHorizontal: 20,
-					paddingVertical: 12,
-					borderRadius: 4,
-				}}>
-					<Text style={{ color: "#666", fontSize: 14, textAlign: "center" }}>
-						Checking email domain access
-					</Text>
-				</View>
-			</View>
-		);
-	}
+        if (createdSessionId) {
+          await setActive!({ session: createdSessionId });
+        }
+      } catch (err) {
+        console.error("OAuth error:", JSON.stringify(err, null, 2));
+        alert("Sign-in failed. Check logs for details.");
+      } finally {
+        setIsOAuthLoading(false);
+      }
+    },
+    [startOAuthFlow]
+  );
 
-	// Show success state (user is signed in with valid domain)
-	if (isSignedIn && isDomainValid) {
-		return (
-			<View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 20 }}>
-				<Text style={{ fontSize: 24, marginBottom: 20 }}>Welcome!</Text>
-				<Text style={{ fontSize: 16, marginBottom: 20, textAlign: "center" }}>
-					Successfully signed in as {user?.firstName || user?.emailAddresses?.[0]?.emailAddress}
-				</Text>
-				<View style={{
-					backgroundColor: "#d4edda",
-					paddingHorizontal: 20,
-					paddingVertical: 12,
-					borderRadius: 4,
-					borderWidth: 1,
-					borderColor: "#c3e6cb",
-				}}>
-					<Text style={{ color: "#155724", fontSize: 14, textAlign: "center" }}>
-						Redirecting to home...
-					</Text>
-				</View>
-			</View>
-		);
-	}
+  // Show loading state during validation
+  if (isValidating) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 20 }}>
+        <Text style={{ fontSize: 24, marginBottom: 20 }}>Sign in</Text>
+        <Text style={{ fontSize: 16, marginBottom: 20, textAlign: "center" }}>
+          Verifying account...
+        </Text>
+        <View
+          style={{
+            backgroundColor: "#f5f5f5",
+            paddingHorizontal: 20,
+            paddingVertical: 12,
+            borderRadius: 4,
+          }}
+        >
+          <Text style={{ color: "#666", fontSize: 14, textAlign: "center" }}>
+            Checking email domain access
+          </Text>
+        </View>
+      </View>
+    );
+  }
 
-	// Default sign-in form
-	return (
-		<View style={{ flex: 1, justifyContent: "center", alignItems: "center", padding: 20 }}>
-			<Text style={{ fontSize: 24, marginBottom: 20 }}>Sign in</Text>
-			<TouchableOpacity
-				onPress={handleSignIn}
-				style={{
-					backgroundColor: "#4285F4",
-					paddingHorizontal: 20,
-					paddingVertical: 12,
-					borderRadius: 4,
-					flexDirection: "row",
-					alignItems: "center",
-				}}
-			>
-				<Text style={{ color: "white", fontSize: 16, fontWeight: "bold" }}>
-					Sign in with Google
-				</Text>
-			</TouchableOpacity>
-			<View style={{
-				backgroundColor: "#f8f9fa",
-				paddingHorizontal: 15,
-				paddingVertical: 10,
-				borderRadius: 4,
-				marginTop: 20,
-			}}>
-				<Text style={{ color: "#6c757d", fontSize: 12, textAlign: "center" }}>
-					Only @g.batstate-u.edu.ph accounts are allowed
-				</Text>
-			</View>
-		</View>
-	);
+
+  return (
+    <View
+      style={{
+        flex: 1,
+        flexDirection: "column",
+        backgroundColor: "#F5F5F5",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      {/* red rectangle with rounded corners */}
+      <View
+        style={{
+          width: "100%",
+          height: "75%",
+          borderRadius: 32,
+          borderTopLeftRadius: 0,
+          borderTopRightRadius: 0,
+          backgroundColor: "#910C24",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        {/* bsu logo */}
+        <Image
+          source={require("../../assets/images/auth-screen/batangas-state-university-logo.png")}
+          style={{
+            width: 200,
+            height: "25%",
+            resizeMode: "contain",
+          }}
+        />
+
+        {/* welcome greeting */}
+        <Text
+          style={{
+            fontSize: 28,
+            fontWeight: "bold",
+            color: "white",
+            textAlign: "center",
+            marginTop: 10,
+          }}
+        >
+          Welcome, Spartans!
+        </Text>
+      </View>
+
+      {/* Sign in with Google button */}
+      <TouchableOpacity
+        onPress={handleSignIn}
+        disabled={isOAuthLoading}
+        style={{
+          backgroundColor: "#FFF",
+          borderWidth: 1,
+          borderColor: "#DADCE0",
+          paddingHorizontal: 24,
+          paddingVertical: 12,
+          borderRadius: 4,
+          flexDirection: "row",
+          alignItems: "center",
+          width: "80%",
+          justifyContent: "center",
+          marginTop: 20,
+          opacity: isOAuthLoading ? 0.7 : 1,
+        }}
+      >
+        <Image
+          source={require("../../assets/images/google.png")}
+          style={{
+            width: 20,
+            height: 20,
+            marginRight: 12,
+            resizeMode: "contain",
+          }}
+        />
+        <Text style={{ color: "black", fontSize: 16, fontWeight: "bold" }}>
+          {isOAuthLoading ? "Signing in..." : "Sign in with Google"}
+        </Text>
+      </TouchableOpacity>
+
+      {/* Domain restriction note */}
+      <Text
+        style={{
+          color: "#6B7280",
+          fontSize: 12,
+          textAlign: "center",
+          marginTop: 16,
+          lineHeight: 16,
+          maxWidth: "80%",
+        }}
+      >
+        Exclusive app for students with @g.batstate-u.edu.ph email address
+      </Text>
+    </View>
+  );
 }
