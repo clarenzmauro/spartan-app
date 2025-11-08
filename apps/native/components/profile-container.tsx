@@ -1,4 +1,4 @@
-import { Text, View, TouchableOpacity, Image, Modal, Pressable, ScrollView } from "react-native";
+import { Text, View, TouchableOpacity, Image, Modal, Pressable, ScrollView, ActivityIndicator } from "react-native";
 import { useState } from "react";
 
 export default function ProfileContainer() {
@@ -6,6 +6,7 @@ export default function ProfileContainer() {
   const [showSkillModal, setShowSkillModal] = useState(false);
   const [showDailiesModal, setShowDailiesModal] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
+  const [showBattleModal, setShowBattleModal] = useState(false);
   const [isEventActive, setIsEventActive] = useState(true); // Change to false to disable event
 
   return (
@@ -105,7 +106,10 @@ export default function ProfileContainer() {
       {/* Buttons Container */}
       <View className="w-full max-w-md">
         {/* Battle Button */}
-        <TouchableOpacity className="bg-neutral-800 rounded-lg py-4 mb-2">
+        <TouchableOpacity 
+          className="bg-neutral-800 rounded-lg py-4 mb-2"
+          onPress={() => setShowBattleModal(true)}
+        >
           <Text className="text-white text-center font-bold text-lg">BATTLE</Text>
         </TouchableOpacity>
 
@@ -144,7 +148,7 @@ export default function ProfileContainer() {
           <Pressable className="bg-neutral-800 rounded-xl p-6 mx-8 max-w-sm w-[90%] max-h-[70%]">
             <Text className="text-white font-bold text-xl mb-4">Daily Quests</Text>
             <ScrollView className="mb-4">
-              <View className="space-y-3">
+              <View className="space-y-5">
                 <View className="bg-neutral-700 p-3 rounded-lg">
                   <Text className="text-white font-semibold mb-1">Complete 5 Battles</Text>
                   <Text className="text-gray-400 text-sm">Reward: 100 Gold</Text>
@@ -223,6 +227,27 @@ export default function ProfileContainer() {
             </TouchableOpacity>
           </Pressable>
         </Pressable>
+      </Modal>
+
+      {/* Battle Finding Modal */}
+      <Modal
+        transparent={true}
+        visible={showBattleModal}
+        animationType="fade"
+        onRequestClose={() => setShowBattleModal(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-neutral-800 rounded-xl p-8 mx-8 max-w-sm items-center">
+            <ActivityIndicator size="large" color="#3b82f6" />
+            <Text className="text-white font-bold text-xl mt-6 mb-6">Finding Battle...</Text>
+            <TouchableOpacity
+              onPress={() => setShowBattleModal(false)}
+              className="bg-red-500 rounded-lg py-3 px-8 w-full"
+            >
+              <Text className="text-white text-center font-semibold">Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </Modal>
     </View>
   );
