@@ -74,7 +74,7 @@ export default function ProfileContainer() {
             </View>
 
             {/* Skills Section */}
-            <View className="max-w-[45%]">
+            <View className="max-w-[50%]">
               <Text className="text-white font-bold mb-2 text-right">Skills:</Text>
               <View className="gap-2">
                 <View className="flex-row gap-2 justify-end">
