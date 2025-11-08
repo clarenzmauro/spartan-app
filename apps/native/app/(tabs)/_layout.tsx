@@ -43,9 +43,9 @@ export default function TabsLayout() {
 			<Tabs.Screen
 				name="qr"
 				options={{
-					title: "",
+					title: "QR",
 					tabBarIcon: () => (
-						<View className={`w-14 h-14 rounded-full border-4 border-[#F38EA1] bg-[#B00020] items-center justify-center`}>
+						<View className={`w-20 h-20 rounded-full border-4 border-[#F38EA1] bg-[#B00020] items-center justify-center -mt-14`}>
 							<TabBarIcon name="qrcode" color="#FFFFFF" />
 						</View>
 					),
