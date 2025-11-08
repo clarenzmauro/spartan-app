@@ -1,4 +1,4 @@
-import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { ConvexReactClient } from "convex/react";
 import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
@@ -13,7 +13,7 @@ import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { View, Image } from "react-native";
+import { View } from "react-native";
 import "../global.css";
 import { NAV_THEME } from "@/lib/constants";
 import React, { useRef } from "react";

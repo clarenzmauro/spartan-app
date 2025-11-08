@@ -1,5 +1,4 @@
-import { Container } from "@/components/container";
-import { ScrollView, Text, View, Image } from "react-native";
+import { Text, View, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function HomeScreen() {
@@ -22,7 +21,7 @@ export default function HomeScreen() {
           backgroundColor: "#b30000",
           justifyContent: "flex-start",
           alignItems: "stretch",
-		  paddingTop: "5%",
+          paddingTop: "5%",
         }}
       >
         {/* logo + bell */}

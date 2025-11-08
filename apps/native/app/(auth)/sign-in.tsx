@@ -1,7 +1,7 @@
 import React from "react";
 import * as WebBrowser from "expo-web-browser";
 import { Text, TouchableOpacity, View, Image } from "react-native";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { useAuth, useUser, useClerk, useOAuth } from "@clerk/clerk-expo";
 import * as Linking from "expo-linking";
 
