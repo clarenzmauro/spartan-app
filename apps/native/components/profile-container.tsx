@@ -1,9 +1,12 @@
-import { Text, View, TouchableOpacity, Image, Modal, Pressable } from "react-native";
+import { Text, View, TouchableOpacity, Image, Modal, Pressable, ScrollView } from "react-native";
 import { useState } from "react";
 
 export default function ProfileContainer() {
   const [gender, setGender] = useState<"male" | "female">("male");
   const [showSkillModal, setShowSkillModal] = useState(false);
+  const [showDailiesModal, setShowDailiesModal] = useState(false);
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [isEventActive, setIsEventActive] = useState(true); // Change to false to disable event
 
   return (
     <View className="flex justify-center items-center flex-1 px-4 bg-red-100">
@@ -108,15 +111,119 @@ export default function ProfileContainer() {
 
         {/* Dailies and Event Buttons Row */}
         <View className="flex-row gap-2">
-          <TouchableOpacity className="bg-neutral-800 rounded-lg py-4 flex-1">
+          <TouchableOpacity 
+            className="bg-neutral-800 rounded-lg py-4 flex-1"
+            onPress={() => setShowDailiesModal(true)}
+          >
             <Text className="text-white text-center font-bold text-lg">DAILIES</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity className="bg-neutral-800 rounded-lg py-4 flex-1">
-            <Text className="text-white text-center font-bold text-lg">EVENT</Text>
+          <TouchableOpacity 
+            className={`rounded-lg py-4 flex-1 ${isEventActive ? 'bg-neutral-800' : 'bg-gray-500'}`}
+            onPress={() => isEventActive && setShowEventModal(true)}
+            disabled={!isEventActive}
+          >
+            <Text className={`text-center font-bold text-lg ${isEventActive ? 'text-white' : 'text-gray-400'}`}>
+              EVENT
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Dailies Modal */}
+      <Modal
+        transparent={true}
+        visible={showDailiesModal}
+        animationType="fade"
+        onRequestClose={() => setShowDailiesModal(false)}
+      >
+        <Pressable 
+          className="flex-1 justify-center items-center bg-black/50"
+          onPress={() => setShowDailiesModal(false)}
+        >
+          <Pressable className="bg-neutral-800 rounded-xl p-6 mx-8 max-w-sm w-[90%] max-h-[70%]">
+            <Text className="text-white font-bold text-xl mb-4">Daily Quests</Text>
+            <ScrollView className="mb-4">
+              <View className="space-y-3">
+                <View className="bg-neutral-700 p-3 rounded-lg">
+                  <Text className="text-white font-semibold mb-1">Complete 5 Battles</Text>
+                  <Text className="text-gray-400 text-sm">Reward: 100 Gold</Text>
+                  <Text className="text-green-400 text-xs mt-1">Progress: 3/5</Text>
+                </View>
+                <View className="bg-neutral-700 p-3 rounded-lg">
+                  <Text className="text-white font-semibold mb-1">Train for 30 Minutes</Text>
+                  <Text className="text-gray-400 text-sm">Reward: 50 XP</Text>
+                  <Text className="text-green-400 text-xs mt-1">Progress: 15/30</Text>
+                </View>
+                <View className="bg-neutral-700 p-3 rounded-lg">
+                  <Text className="text-white font-semibold mb-1">Defeat 10 Enemies</Text>
+                  <Text className="text-gray-400 text-sm">Reward: Rare Item</Text>
+                  <Text className="text-green-400 text-xs mt-1">Progress: 7/10</Text>
+                </View>
+                <View className="bg-neutral-700 p-3 rounded-lg">
+                  <Text className="text-white font-semibold mb-1">Collect Daily Login Bonus</Text>
+                  <Text className="text-gray-400 text-sm">Reward: 25 Gold</Text>
+                  <Text className="text-yellow-400 text-xs mt-1">Available</Text>
+                </View>
+              </View>
+            </ScrollView>
+            <TouchableOpacity
+              onPress={() => setShowDailiesModal(false)}
+              className="bg-blue-500 rounded-lg py-3"
+            >
+              <Text className="text-white text-center font-semibold">Close</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Event Modal */}
+      <Modal
+        transparent={true}
+        visible={showEventModal}
+        animationType="fade"
+        onRequestClose={() => setShowEventModal(false)}
+      >
+        <Pressable 
+          className="flex-1 justify-center items-center bg-black/50"
+          onPress={() => setShowEventModal(false)}
+        >
+          <Pressable className="bg-neutral-800 rounded-xl p-6 mx-8 max-w-sm w-[90%] max-h-[70%]">
+            <Text className="text-white font-bold text-xl mb-4">Special Events</Text>
+            <ScrollView className="mb-4">
+              <View className="space-y-3">
+                <View className="bg-neutral-700 p-4 rounded-lg">
+                  <Text className="text-yellow-400 font-bold mb-2">⚡ Lightning Tournament</Text>
+                  <Text className="text-gray-300 text-sm mb-2">
+                    Compete against other players in a series of battles. Top 10 players win exclusive rewards!
+                  </Text>
+                  <Text className="text-gray-400 text-xs">Ends in: 2 days 5 hours</Text>
+                </View>
+                <View className="bg-neutral-700 p-4 rounded-lg">
+                  <Text className="text-purple-400 font-bold mb-2">🎁 Weekend Bonus</Text>
+                  <Text className="text-gray-300 text-sm mb-2">
+                    Earn double XP and rewards for all battles completed this weekend.
+                  </Text>
+                  <Text className="text-gray-400 text-xs">Ends in: 1 day 12 hours</Text>
+                </View>
+                <View className="bg-neutral-700 p-4 rounded-lg">
+                  <Text className="text-red-400 font-bold mb-2">🔥 Boss Raid</Text>
+                  <Text className="text-gray-300 text-sm mb-2">
+                    Team up with others to defeat the legendary Fire Dragon. Legendary loot awaits!
+                  </Text>
+                  <Text className="text-gray-400 text-xs">Active now</Text>
+                </View>
+              </View>
+            </ScrollView>
+            <TouchableOpacity
+              onPress={() => setShowEventModal(false)}
+              className="bg-blue-500 rounded-lg py-3"
+            >
+              <Text className="text-white text-center font-semibold">Close</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
