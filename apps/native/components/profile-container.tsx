@@ -39,28 +39,31 @@ export default function ProfileContainer() {
         </View>
 
         {/* Character Image and Stats Row */}
-        <View className="flex-row justify-between">
+        <View className="flex-row justify-between items-start w-full">
           {/* Character Image - Left */}
-          <View className="items-start">
+          <View className="flex-shrink">
             <Image
               source={
                 gender === "male"
                   ? require("../../native/assets/images/male_1_cropped.png")
                   : require("../../native/assets/images/female_1_cropped.png")
               }
-              className="w-72 h-96"
-              style={{ transform: [{ scale: 1.2 }] }}
+              className="w-64 h-96" // reduce a bit to allow text space
               resizeMode="contain"
             />
           </View>
 
           {/* Stats - Right */}
-          <View className="pr-2">
+          <View className="flex-shrink items-end ml-2">
             {/* Stats Section */}
-            <View className="mb-6">
-              <Text className="text-white font-bold mb-2 text-right">Stats:</Text>
-              <Text className="text-white font-bold mb-2 text-right">Points: 0</Text>
-              <View className="space-y-1">
+            <View className="mb-6 max-w-[75%]">
+              <Text className="text-white font-bold mb-2 text-right" numberOfLines={1}>
+                Stats:
+              </Text>
+              <Text className="text-white font-bold mb-2 text-right" numberOfLines={1}>
+                Points: 0
+              </Text>
+              <View>
                 <Text className="text-gray-300 text-sm text-right">HP: 100</Text>
                 <Text className="text-gray-300 text-sm text-right">ATK: 85</Text>
                 <Text className="text-gray-300 text-sm text-right">CRT: 72</Text>
@@ -70,39 +73,24 @@ export default function ProfileContainer() {
               </View>
             </View>
 
-            {/* Special Skill Section */}
-            <View>
+            {/* Skills Section */}
+            <View className="max-w-[45%]">
               <Text className="text-white font-bold mb-2 text-right">Skills:</Text>
-              {/* 2x2 Grid of Skills */}
               <View className="gap-2">
-                {/* First Row */}
-                <View className="flex-row gap-2">
-                  <TouchableOpacity
-                    onPress={() => setShowSkillModal(true)}
-                    activeOpacity={0.7}
-                  >
-                    <View className="w-10 h-10 bg-neutral-700 rounded" />
+                <View className="flex-row gap-2 justify-end">
+                  <TouchableOpacity onPress={() => setShowSkillModal(true)} activeOpacity={0.7}>
+                    <View className="w-10 h-10 bg-neutral-300 rounded" />
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => showLockedSkill("Reach 2nd Year to unlock")}
-                    activeOpacity={0.7}
-                  >
-                    <View className="w-10 h-10 bg-neutral-900 rounded opacity-50" />
+                  <TouchableOpacity onPress={() => showLockedSkill("Reach 2nd Year to unlock")} activeOpacity={0.7}>
+                    <View className="w-10 h-10 bg-neutral-700 rounded opacity-50" />
                   </TouchableOpacity>
                 </View>
-                {/* Second Row */}
-                <View className="flex-row gap-2">
-                  <TouchableOpacity
-                    onPress={() => showLockedSkill("Reach 3rd Year to unlock")}
-                    activeOpacity={0.7}
-                  >
-                    <View className="w-10 h-10 bg-neutral-900 rounded opacity-50" />
+                <View className="flex-row gap-2 justify-end">
+                  <TouchableOpacity onPress={() => showLockedSkill("Reach 3rd Year to unlock")} activeOpacity={0.7}>
+                    <View className="w-10 h-10 bg-neutral-700 rounded opacity-50" />
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => showLockedSkill("Reach 4th Year to unlock")}
-                    activeOpacity={0.7}
-                  >
-                    <View className="w-10 h-10 bg-neutral-900 rounded opacity-50" />
+                  <TouchableOpacity onPress={() => showLockedSkill("Reach 4th Year to unlock")} activeOpacity={0.7}>
+                    <View className="w-10 h-10 bg-neutral-700 rounded opacity-50" />
                   </TouchableOpacity>
                 </View>
               </View>
