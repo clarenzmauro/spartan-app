@@ -91,18 +91,9 @@ export const joinMatchmaking = mutation({
         createdAt: Date.now(),
       });
 
-      // Update both matchmaking entries
-      await ctx.db.patch(matchmakingId, {
-        status: "matched",
-        matchedWith: potentialMatches._id,
-        battleId,
-      });
-
-      await ctx.db.patch(potentialMatches._id, {
-        status: "matched",
-        matchedWith: matchmakingId,
-        battleId,
-      });
+      // Delete both matchmaking entries (no longer needed)
+      await ctx.db.delete(matchmakingId);
+      await ctx.db.delete(potentialMatches._id);
 
       return { matchmakingId, status: "matched", battleId };
     }
@@ -120,9 +111,8 @@ export const cancelMatchmaking = mutation({
     const entry = await ctx.db.get(args.matchmakingId);
     
     if (entry && entry.status === "waiting") {
-      await ctx.db.patch(args.matchmakingId, {
-        status: "cancelled",
-      });
+      // Delete the entry from database
+      await ctx.db.delete(args.matchmakingId);
       return { success: true };
     }
 
