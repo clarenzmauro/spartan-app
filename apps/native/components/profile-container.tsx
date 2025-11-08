@@ -65,7 +65,7 @@ export default function ProfileContainer() {
                 onPress={() => setShowSkillModal(true)}
                 activeOpacity={0.7}
               >
-                <View className="w-8 h-8 bg-neutral-700 rounded" />
+                <View className="w-10 h-10 bg-neutral-700 rounded" />
               </TouchableOpacity>
             </View>
           </View>
