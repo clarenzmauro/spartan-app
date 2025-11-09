@@ -10,6 +10,7 @@ import EventsIcon from "../../assets/images/home-screen/events-icon.svg";
 import NewsIcon from "../../assets/images/home-screen/news-icon.svg";
 import GradesIcon from "../../assets/images/home-screen/grades-icon.svg";
 import LiabilitiesIcon from "../../assets/images/home-screen/liabilities-icon.svg";
+import MoreIcon from "../../assets/images/home-screen/more-icon.svg";
 
 export default function HomeScreen() {
   const { user, isLoaded } = useUser();
@@ -106,8 +107,8 @@ export default function HomeScreen() {
               <Text className="text-gray-800 font-medium mt-2">Liabilities</Text>
             </View>
 			 <View className="flex-1 items-center justify-center">
-              <GradesIcon width={32} height={32} />
-              <Text className="text-gray-800 font-medium mt-2">Grades</Text>
+              <MoreIcon width={32} height={32} />
+              <Text className="text-gray-800 font-medium mt-2">More</Text>
             </View>
           </View>
         </View>
