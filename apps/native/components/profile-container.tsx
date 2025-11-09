@@ -3,8 +3,10 @@ import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../packages/backend/convex/_generated/api";
 import type { Id } from "../../../packages/backend/convex/_generated/dataModel";
+import { useRouter } from "expo-router";
 
 export default function ProfileContainer() {
+  const router = useRouter();
   const [gender, setGender] = useState<"male" | "female">("male");
   const [showSkillModal, setShowSkillModal] = useState(false);
   const [showLockedSkillModal, setShowLockedSkillModal] = useState(false);
@@ -45,10 +47,11 @@ export default function ProfileContainer() {
       const result = await joinMatchmaking(playerStats);
       setMatchmakingId(result.matchmakingId);
       
-      if (result.status === "matched") {
-        // Battle found immediately
-        console.log("Battle found!", result.battleId);
-        // Navigate to battle screen or handle matched state
+      if (result.status === "matched" && result.battleId) {
+        // Battle found immediately - navigate right away
+        console.log("Battle found immediately!", result.battleId);
+        setShowBattleModal(false);
+        router.push(`/(battle)/page?battleId=${result.battleId}`);
       }
     } catch (error) {
       console.error("Error joining matchmaking:", error);
@@ -69,13 +72,13 @@ export default function ProfileContainer() {
     setShowBattleModal(false);
   };
 
-  // Monitor matchmaking status
+  // Monitor matchmaking status for waiting players
   useEffect(() => {
     if (matchmakingStatus?.status === "matched" && matchmakingStatus.battleId) {
       console.log("Match found! Battle ID:", matchmakingStatus.battleId);
       setShowBattleModal(false);
-      // Navigate to battle screen or update UI
-      // You can add navigation here: navigation.navigate("Battle", { battleId: matchmakingStatus.battleId })
+      // Navigate both users to battle page
+      router.push(`/(battle)/page?battleId=${matchmakingStatus.battleId}`);
     }
   }, [matchmakingStatus]);
 

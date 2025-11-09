@@ -114,9 +114,18 @@ export const joinMatchmaking = mutation({
         createdAt: Date.now(),
       });
 
-      // Delete both matchmaking entries (no longer needed)
-      await ctx.db.delete(matchmakingId);
-      await ctx.db.delete(potentialMatches._id);
+      // Update both matchmaking entries with battleId
+      await ctx.db.patch(matchmakingId, {
+        status: "matched",
+        matchedWith: potentialMatches._id,
+        battleId,
+      });
+
+      await ctx.db.patch(potentialMatches._id, {
+        status: "matched",
+        matchedWith: matchmakingId,
+        battleId,
+      });
 
       return { matchmakingId, status: "matched", battleId };
     }
