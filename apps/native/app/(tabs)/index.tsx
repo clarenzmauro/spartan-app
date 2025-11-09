@@ -40,10 +40,12 @@ export default function HomeScreen() {
           justifyContent: "flex-start",
           alignItems: "stretch",
           paddingTop: "5%",
+          paddingLeft: 24,
+          paddingRight: 24,
         }}
       >
         {/* logo + bell */}
-        <View className="flex-row justify-between items-center py-10 px-6">
+        <View className="flex-row justify-between items-center py-10">
           <Image
             source={require("../../assets/images/auth-screen/batangas-state-university-logo.png")}
             style={{
@@ -56,7 +58,7 @@ export default function HomeScreen() {
         </View>
 
         {/* student information */}
-        <View className="flex-1 justify-end px-6 pb-6">
+        <View className="flex-1 justify-end pb-6">
           <Text className="text-white text-lg font-semibold">
             {user?.lastName?.toUpperCase()}, {user?.firstName}
           </Text>
@@ -115,7 +117,7 @@ export default function HomeScreen() {
 	  <View className="items-center">
 		<View
 		  style={{
-			width: 380,
+			width: "95%",
 			height: 140,
 			flexShrink: 0,
 			borderRadius: 10,
@@ -179,7 +181,7 @@ export default function HomeScreen() {
 		{/* Schedule Card */}
 		<View
 			style={{
-			width: 380,
+			width: "95%",
 			flexShrink: 0,
 			borderRadius: 10,
 			backgroundColor: '#fff',
