@@ -152,26 +152,26 @@ export default function BattlePage() {
                     <View className="flex-row gap-2 items-center">
                       <View className="flex-row gap-1 flex-1">
                         <TouchableOpacity 
-                          className="flex-1 h-10 bg-purple-700 rounded border border-purple-400 justify-center items-center"
+                          className="flex-1 h-12 bg-purple-700 rounded border border-purple-400 justify-center items-center"
                           disabled={!isMyTurn}
                           onPress={handleSkill}
                         >
                           <Text className="text-white text-xs font-bold">S1</Text>
                         </TouchableOpacity>
                         <TouchableOpacity 
-                          className="flex-1 h-10 bg-gray-700 rounded border border-gray-500 opacity-50 justify-center items-center"
+                          className="flex-1 h-12 bg-gray-700 rounded border border-gray-500 opacity-50 justify-center items-center"
                           disabled={true}
                         >
                           <Text className="text-gray-400 text-xs"></Text>
                         </TouchableOpacity>
                         <TouchableOpacity 
-                          className="flex-1 h-10 bg-gray-700 rounded border border-gray-500 opacity-50 justify-center items-center"
+                          className="flex-1 h-12 bg-gray-700 rounded border border-gray-500 opacity-50 justify-center items-center"
                           disabled={true}
                         >
                           <Text className="text-gray-400 text-xs"></Text>
                         </TouchableOpacity>
                         <TouchableOpacity 
-                          className="flex-1 h-10 bg-gray-700 rounded border border-gray-500 opacity-50 justify-center items-center"
+                          className="flex-1 h-12 bg-gray-700 rounded border border-gray-500 opacity-50 justify-center items-center"
                           disabled={true}
                         >
                           <Text className="text-gray-400 text-xs"></Text>
@@ -181,7 +181,7 @@ export default function BattlePage() {
                       <TouchableOpacity
                         onPress={handleAttack}
                         disabled={!isMyTurn}
-                        className={`px-4 h-10 rounded border-2 justify-center items-center ${
+                        className={`px-4 h-12 rounded border-2 justify-center items-center ${
                           isMyTurn 
                             ? 'bg-gray-700 border-gray-400' 
                             : 'bg-gray-800 border-gray-600 opacity-50'
