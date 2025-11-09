@@ -4,6 +4,8 @@ import { Text, TouchableOpacity, View, Image } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth, useUser, useClerk, useOAuth } from "@clerk/clerk-expo";
 import * as Linking from "expo-linking";
+import { useMutation } from "convex/react";
+import { api } from "../../../../packages/backend/convex/_generated/api";
 
 export const useWarmUpBrowser = () => {
   React.useEffect(() => {
@@ -25,6 +27,9 @@ export default function Page() {
   const { user, isLoaded: isUserLoaded } = useUser();
   const { signOut } = useClerk();
   const { startOAuthFlow } = useOAuth({ strategy: "oauth_google" });
+  
+  // Convex mutation for creating/updating user
+  const createOrUpdateUser = useMutation(api.users.createOrUpdateUser);
 
   // Track domain validation status
   const [isDomainValid, setIsDomainValid] = React.useState<boolean | null>(
@@ -33,7 +38,7 @@ export default function Page() {
   const [isValidating, setIsValidating] = React.useState(false);
   const [isOAuthLoading, setIsOAuthLoading] = React.useState(false);
 
-  // Validate email domain after sign in
+  // Validate email domain and create user entry after sign in
   React.useEffect(() => {
     if (isSignedIn && isUserLoaded && user?.emailAddresses?.[0]?.emailAddress) {
       const userEmail = user.emailAddresses[0].emailAddress;
@@ -43,8 +48,30 @@ export default function Page() {
       setIsValidating(false);
 
       if (isValid) {
-        // Valid domain - navigate to home immediately
-        router.replace("/");
+        // Create or update user in database
+        createOrUpdateUser({
+          clerkId: user.id,
+          name: user.fullName || undefined,
+          email: userEmail,
+          picture: user.imageUrl,
+          nickname: user.username || undefined,
+          given_name: user.firstName || undefined,
+          family_name: user.lastName || undefined,
+          phone_number: user.phoneNumbers?.[0]?.phoneNumber || undefined,
+          email_verified: user.emailAddresses?.[0]?.verification?.status === "verified",
+          phone_number_verified: user.phoneNumbers?.[0]?.verification?.status === "verified",
+          updated_at: user.updatedAt ? new Date(user.updatedAt).getTime() : undefined,
+        })
+          .then((result) => {
+            console.log(result.isNew ? "New user created" : "User updated");
+            // Valid domain - navigate to home
+            router.replace("/");
+          })
+          .catch((error) => {
+            console.error("Error creating/updating user:", error);
+            // Navigate anyway on error
+            router.replace("/");
+          });
       } else {
         // Invalid domain - sign out immediately and show error
         signOut();

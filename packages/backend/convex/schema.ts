@@ -6,6 +6,21 @@ export default defineSchema({
 		text: v.string(),
 		completed: v.boolean(),
 	}),
+	users: defineTable({
+		clerkId: v.string(),
+		name: v.optional(v.string()),
+		email: v.string(),
+		picture: v.optional(v.string()),
+		nickname: v.optional(v.string()),
+		given_name: v.optional(v.string()),
+		family_name: v.optional(v.string()),
+		phone_number: v.optional(v.string()),
+		email_verified: v.optional(v.boolean()),
+		phone_number_verified: v.optional(v.boolean()),
+		updated_at: v.optional(v.number()),
+		createdAt: v.number(),
+	}).index("by_clerk_id", ["clerkId"])
+	  .index("by_email", ["email"]),
 	matchmaking: defineTable({
 		userId: v.string(),
 		hpAmount: v.number(),
