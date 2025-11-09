@@ -1,7 +1,14 @@
 import { Text, View, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useUser } from "@clerk/clerk-expo";
 
 export default function HomeScreen() {
+  const { user, isLoaded } = useUser();
+
+  if (!isLoaded) {
+    return <View style={{ flex: 1, backgroundColor: "#F5F5F5" }} />;
+  }
+
   return (
     <View
       style={{
@@ -40,7 +47,7 @@ export default function HomeScreen() {
         {/* student information */}
         <View className="flex-1 justify-end px-6 pb-6">
           <Text className="text-white text-lg font-semibold">
-            MAURO, CLARENZ ANDREW D.
+            {user?.lastName?.toUpperCase()}, {user?.firstName}
           </Text>
           <Text className="text-white text-sm">
             College of Informatics and Computing Sciences
