@@ -179,3 +179,24 @@ export const getMatchmakingStatus = query({
     };
   },
 });
+
+// Cleanup matchmaking entries for a battle
+export const cleanupMatchmakingForBattle = mutation({
+  args: {
+    battleId: v.id("battles"),
+  },
+  handler: async (ctx, args) => {
+    // Find all matchmaking entries for this battle
+    const matchmakingEntries = await ctx.db
+      .query("matchmaking")
+      .filter((q) => q.eq(q.field("battleId"), args.battleId))
+      .collect();
+
+    // Delete all matching entries
+    for (const entry of matchmakingEntries) {
+      await ctx.db.delete(entry._id);
+    }
+
+    return { deleted: matchmakingEntries.length };
+  },
+});

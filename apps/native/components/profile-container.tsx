@@ -116,8 +116,8 @@ export default function ProfileContainer() {
             <Image
               source={
                 gender === "male"
-                  ? require("../../native/assets/images/male_1_cropped.png")
-                  : require("../../native/assets/images/female_1_cropped.png")
+                  ? require("../../native/assets/images/male-character/male_1_cropped.png")
+                  : require("../../native/assets/images/female-character/female_1_cropped.png")
               }
               className="w-64 h-96" // reduce a bit to allow text space
               resizeMode="contain"
