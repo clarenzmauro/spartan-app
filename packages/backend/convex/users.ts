@@ -4,7 +4,6 @@ import { mutation, query } from "./_generated/server";
 // Create or update user after sign-in
 export const createOrUpdateUser = mutation({
   args: {
-    clerkId: v.string(),
     name: v.optional(v.string()),
     email: v.string(),
     picture: v.optional(v.string()),
@@ -17,10 +16,15 @@ export const createOrUpdateUser = mutation({
     updated_at: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Unauthorized");
+    }
+    const clerkId = identity.subject;
     // Check if user already exists
     const existingUser = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", clerkId))
       .first();
 
     if (existingUser) {
@@ -42,7 +46,7 @@ export const createOrUpdateUser = mutation({
     } else {
       // Create new user
       const userId = await ctx.db.insert("users", {
-        clerkId: args.clerkId,
+        clerkId,
         name: args.name,
         email: args.email,
         picture: args.picture,
@@ -56,6 +60,19 @@ export const createOrUpdateUser = mutation({
         createdAt: Date.now(),
       });
 
+      // Create default character for new user
+      await ctx.db.insert("characters", {
+        userId,
+        hpAmount: 100,
+        atkAmount: 10,
+        crtAmount: 5,
+        defAmount: 5,
+        spdAmount: 5,
+        intAmount: 5,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+
       return { userId, isNew: true };
     }
   },
@@ -67,12 +84,30 @@ export const getUserByClerkId = query({
     clerkId: v.string(),
   },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
     const user = await ctx.db
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
       .first();
 
-    return user;
+    if (!user) {
+      return null;
+    }
+
+    // If the requester is the same as the target user, return full profile
+    if (identity && identity.subject === args.clerkId) {
+      return user;
+    }
+
+    // Otherwise, return public profile only (redact sensitive info)
+    return {
+      _id: user._id,
+      clerkId: user.clerkId,
+      name: user.name,
+      picture: user.picture,
+      nickname: user.nickname,
+      createdAt: user.createdAt,
+    };
   },
 });
 
@@ -82,11 +117,29 @@ export const getUserByEmail = query({
     email: v.string(),
   },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
     const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", args.email))
       .first();
 
-    return user;
+    if (!user) {
+      return null;
+    }
+
+    // If the requester is the same as the target user, return full profile
+    if (identity && identity.subject === user.clerkId) {
+      return user;
+    }
+
+    // Otherwise, return public profile only (redact sensitive info)
+    return {
+      _id: user._id,
+      clerkId: user.clerkId,
+      name: user.name,
+      picture: user.picture,
+      nickname: user.nickname,
+      createdAt: user.createdAt,
+    };
   },
 });

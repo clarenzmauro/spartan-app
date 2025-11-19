@@ -2,10 +2,6 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
-	todos: defineTable({
-		text: v.string(),
-		completed: v.boolean(),
-	}),
 	users: defineTable({
 		clerkId: v.string(),
 		name: v.optional(v.string()),
@@ -21,6 +17,17 @@ export default defineSchema({
 		createdAt: v.number(),
 	}).index("by_clerk_id", ["clerkId"])
 	  .index("by_email", ["email"]),
+	characters: defineTable({
+		userId: v.string(),
+		hpAmount: v.number(),
+		atkAmount: v.number(),
+		crtAmount: v.number(),
+		defAmount: v.number(),
+		spdAmount: v.number(),
+		intAmount: v.number(),
+		createdAt: v.number(),
+		updatedAt: v.number(),
+	}).index("by_user", ["userId"]),
 	matchmaking: defineTable({
 		userId: v.string(),
 		hpAmount: v.number(),

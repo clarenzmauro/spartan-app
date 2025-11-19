@@ -22,23 +22,31 @@ function calculatePowerLevel(stats: {
 
 // Join matchmaking queue
 export const joinMatchmaking = mutation({
-  args: {
-    userId: v.string(),
-    hpAmount: v.number(),
-    atkAmount: v.number(),
-    crtAmount: v.number(),
-    defAmount: v.number(),
-    spdAmount: v.number(),
-    intAmount: v.number(),
-  },
-  handler: async (ctx, args) => {
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Unauthorized");
+    }
+    const userId = identity.subject;
+
+    // Get character stats from database
+    const character = await ctx.db
+      .query("characters")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+
+    if (!character) {
+      throw new Error("Character not found");
+    }
+
     // Calculate power level
-    const powerLevel = calculatePowerLevel(args);
+    const powerLevel = calculatePowerLevel(character);
 
     // Check if user is already in matchmaking
     const existingEntry = await ctx.db
       .query("matchmaking")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .withIndex("by_user", (q) => q.eq("userId", userId))
       .filter((q) => q.eq(q.field("status"), "waiting"))
       .first();
 
@@ -48,13 +56,13 @@ export const joinMatchmaking = mutation({
 
     // Create matchmaking entry
     const matchmakingId = await ctx.db.insert("matchmaking", {
-      userId: args.userId,
-      hpAmount: args.hpAmount,
-      atkAmount: args.atkAmount,
-      crtAmount: args.crtAmount,
-      defAmount: args.defAmount,
-      spdAmount: args.spdAmount,
-      intAmount: args.intAmount,
+      userId,
+      hpAmount: character.hpAmount,
+      atkAmount: character.atkAmount,
+      crtAmount: character.crtAmount,
+      defAmount: character.defAmount,
+      spdAmount: character.spdAmount,
+      intAmount: character.intAmount,
       powerLevel,
       status: "waiting",
       createdAt: Date.now(),
@@ -81,19 +89,19 @@ export const joinMatchmaking = mutation({
 
     if (potentialMatches) {
       // Determine who goes first based on speed
-      const player1GoesFirst = args.spdAmount >= potentialMatches.spdAmount;
+      const player1GoesFirst = character.spdAmount >= potentialMatches.spdAmount;
       
       // Create battle with full player details
       const battleId = await ctx.db.insert("battles", {
         player1: {
-          userId: args.userId,
-          hpAmount: args.hpAmount,
-          currentHP: args.hpAmount,
-          atkAmount: args.atkAmount,
-          crtAmount: args.crtAmount,
-          defAmount: args.defAmount,
-          spdAmount: args.spdAmount,
-          intAmount: args.intAmount,
+          userId,
+          hpAmount: character.hpAmount,
+          currentHP: character.hpAmount,
+          atkAmount: character.atkAmount,
+          crtAmount: character.crtAmount,
+          defAmount: character.defAmount,
+          spdAmount: character.spdAmount,
+          intAmount: character.intAmount,
           powerLevel,
         },
         player2: {
@@ -140,9 +148,19 @@ export const cancelMatchmaking = mutation({
     matchmakingId: v.id("matchmaking"),
   },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Unauthorized");
+    }
+
     const entry = await ctx.db.get(args.matchmakingId);
-    
-    if (entry && entry.status === "waiting") {
+
+    // Verify the entry belongs to the authenticated user
+    if (!entry || entry.userId !== identity.subject) {
+      return { success: false, reason: "Entry not found or access denied" };
+    }
+
+    if (entry.status === "waiting") {
       // Delete the entry from database
       await ctx.db.delete(args.matchmakingId);
       return { success: true };
@@ -158,9 +176,15 @@ export const getMatchmakingStatus = query({
     matchmakingId: v.id("matchmaking"),
   },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Unauthorized");
+    }
+
     const entry = await ctx.db.get(args.matchmakingId);
-    
-    if (!entry) {
+
+    // Verify the entry belongs to the authenticated user
+    if (!entry || entry.userId !== identity.subject) {
       return null;
     }
 
